@@ -1,6 +1,6 @@
-from os.path import join, dirname
-from os import unlink
 import unittest
+from os import unlink
+from os.path import dirname, join
 
 
 class IterTestCase(unittest.TestCase):
