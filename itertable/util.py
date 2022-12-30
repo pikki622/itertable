@@ -21,8 +21,8 @@ PARSERS = {
     'text/xml': XmlParser,
 }
 
-BINARY_TYPES = set(key for key, cls in PARSERS.items() if cls.binary)
-TEXT_TYPES = set(key for key, cls in PARSERS.items() if not cls.binary)
+BINARY_TYPES = {key for key, cls in PARSERS.items() if cls.binary}
+TEXT_TYPES = {key for key, cls in PARSERS.items() if not cls.binary}
 
 # Save generated classes to avoid recreating them
 _iter_classes = {}
@@ -40,10 +40,7 @@ def make_iter(loader, parser, mapper=TupleMapper,
     if name is None:
         lname = parser.__name__.replace('Parser', '')
         pname = loader.__name__.replace('Loader', '')
-        if mapper == TupleMapper:
-            mname = ""
-        else:
-            mname = mapper.__name__.replace('Mapper', '')
+        mname = "" if mapper == TupleMapper else mapper.__name__.replace('Mapper', '')
         name = lname + pname + mname + "Iter"
     cls = type(name, (loader, parser, mapper, BaseIter), {})
     cls.__module__ = module
@@ -95,7 +92,7 @@ def load_file(filename, mapper=TupleMapper, options=None):
         options.update(file=file, loaded=True)
 
     if mimetype not in PARSERS:
-        raise ParseFailed("Could not determine parser for %s" % mimetype)
+        raise ParseFailed(f"Could not determine parser for {mimetype}")
     parser = PARSERS[mimetype]
     loader = FileLoader
     Iter = make_iter(loader, parser, mapper)
@@ -105,7 +102,7 @@ def load_file(filename, mapper=TupleMapper, options=None):
 def load_url(url, mapper=TupleMapper, options={}):
     mimetype = guess_type(url)
     if mimetype not in PARSERS:
-        raise ParseFailed("Could not determine parser for %s" % mimetype)
+        raise ParseFailed(f"Could not determine parser for {mimetype}")
     parser = PARSERS[mimetype]
     loader = NetLoader
     Iter = make_iter(loader, parser, mapper)

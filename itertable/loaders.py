@@ -44,9 +44,8 @@ class FileLoader(BaseLoader):
             self.empty_file = True
 
     def save(self):
-        file = open(self.filename, self.write_mode)
-        self.dump(file)
-        file.close()
+        with open(self.filename, self.write_mode) as file:
+            self.dump(file)
 
 
 class Zipper(object):
@@ -115,10 +114,7 @@ class NetLoader(StringLoader):
 
     @property
     def user_agent(self):
-        return "IterTable/%s (%s)" % (
-            VERSION,
-            requests.utils.default_user_agent()
-        )
+        return f"IterTable/{VERSION} ({requests.utils.default_user_agent()})"
 
     @property
     def headers(self):
@@ -133,23 +129,23 @@ class NetLoader(StringLoader):
     def req(self, url=None, method=None, params=None, body=None, headers={}):
         if url is None:
             url = self.url
-            if url is None:
-                raise LoadFailed("No URL provided")
+        if url is None:
+            raise LoadFailed("No URL provided")
 
         if params is None:
             params = getattr(self, 'params', None)
 
         if isinstance(params, str):
-            url += '?' + params
+            url += f'?{params}'
             params = None
 
         if self.debug:
             if params:
                 from requests.compat import urlencode
-                debug_url = url + '?' + urlencode(params, doseq=True)
+                debug_url = f'{url}?{urlencode(params, doseq=True)}'
             else:
                 debug_url = url
-            self.debug_string = "%s: %s" % (method, debug_url)
+            self.debug_string = f"{method}: {debug_url}"
             print(self.debug_string)
 
         if self.username is not None and self.password is not None:
@@ -176,10 +172,7 @@ class NetLoader(StringLoader):
                 code=resp.status_code,
             )
 
-        if self.binary:
-            return resp.content
-        else:
-            return resp.text
+        return resp.content if self.binary else resp.text
 
     def GET(self, **kwargs):
         return self.req(method='GET', **kwargs)

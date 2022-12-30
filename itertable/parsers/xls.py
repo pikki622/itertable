@@ -45,9 +45,7 @@ class WorkbookParser(TableParser):
                 self.column_count = 0
 
                 def checkval(cell):
-                    if cell.value is not None and cell.value != '':
-                        return True
-                    return False
+                    return cell.value is not None and cell.value != ''
 
                 search_rows = min(len(self.worksheet) - 1, self.max_header_row)
                 for row in range(search_rows, -1, -1):
@@ -64,9 +62,7 @@ class WorkbookParser(TableParser):
 
         if self.field_names is None:
             rows = self.worksheet[self.header_row:self.start_row]
-            self.field_names = [
-                str(c.value) or 'c%s' % i for i, c in enumerate(rows[0])
-            ]
+            self.field_names = [str(c.value) or f'c{i}' for i, c in enumerate(rows[0])]
             for row in rows[1:]:
                 for i, c in enumerate(row):
                     self.field_names[i] += "\n" + str(c.value)
@@ -82,7 +78,7 @@ class WorkbookParser(TableParser):
 
         self.extra_data = {}
         if self.header_row > 0:
-            for r in range(0, self.header_row):
+            for r in range(self.header_row):
                 for c, cell in enumerate(self.worksheet[r]):
                     val = self.get_value(cell)
                     if val is not None and val != '':
@@ -165,7 +161,7 @@ class OldExcelParser(WorkbookParser):
             if date and time:
                 return datetime.datetime(*tpl)
             elif date:
-                return datetime.date(*tpl[0:3])
+                return datetime.date(*tpl[:3])
             else:
                 return datetime.time(*tpl[3:6])
         return cell.value
@@ -241,13 +237,14 @@ class ExcelParser(WorkbookParser):
 
     def parse_worksheet(self, name):
         worksheet = self.get_sheet_by_name(name)
-        self.worksheet = [row for row in worksheet.rows]
+        self.worksheet = list(worksheet.rows)
 
     def get_value(self, cell):
         value = cell.internal_value
-        if isinstance(value, datetime.datetime):
-            if value.time() == datetime.time(0, 0):
-                return value.date()
+        if isinstance(value, datetime.datetime) and value.time() == datetime.time(
+            0, 0
+        ):
+            return value.date()
         return value
 
     def open_worksheet(self, file):

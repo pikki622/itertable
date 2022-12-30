@@ -15,7 +15,7 @@ class IterTestCase(unittest.TestCase):
     }]
 
     def get_filename(self, filename, ext, remove_existing=False):
-        filename = join(dirname(__file__), "files", "%s.%s" % (filename, ext))
+        filename = join(dirname(__file__), "files", f"{filename}.{ext}")
         if remove_existing:
             try:
                 unlink(filename)

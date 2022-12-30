@@ -6,9 +6,7 @@ except ImportError:
 
 class IterException(Exception):
     def __str__(self):
-        if self.args and self.args[0]:
-            return self.args[0]
-        return self.__doc__
+        return self.args[0] if self.args and self.args[0] else self.__doc__
 
 
 class LoadFailed(IterException):
@@ -27,12 +25,11 @@ class LoadFailed(IterException):
                 if tag in text or tag.upper() in text:
                     has_html = True
             if has_html and BeautifulSoup:
-                html = BeautifulSoup(text).body
-                if html:
+                if html := BeautifulSoup(text).body:
                     text = html.get_text('\n')
             return text
         elif self.code is not None:
-            return "%s Error" % self.code
+            return f"{self.code} Error"
         return super(LoadFailed, self).__str__()
 
 

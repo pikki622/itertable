@@ -24,10 +24,7 @@ class LoadFileTestCase(IterTestCase):
     def test_load_file_object(self):
         for ext in self.types:
             filename = self.get_filename("test", ext)
-            if ext in ('xls', 'xlsx'):
-                mode = 'rb'
-            else:
-                mode = 'r'
+            mode = 'rb' if ext in ('xls', 'xlsx') else 'r'
             with open(filename, mode) as f:
                 instance = load_file(f)
             self.check_instance(instance)

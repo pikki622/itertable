@@ -18,16 +18,9 @@ class CsvParser(TableParser):
         # contain column headers.
         fields = self.get_field_names()
         if self.start_row is None:
-            if fields:
-                self.start_row = 0
-            else:
-                self.start_row = 1
+            self.start_row = 0 if fields else 1
         if self.header_row is None:
-            if fields:
-                self.header_row = None
-            else:
-                self.header_row = 0
-
+            self.header_row = None if fields else 0
         Reader = self.reader_class()
         self.csvdata = Reader(
             self.file,
@@ -38,7 +31,7 @@ class CsvParser(TableParser):
         self.field_names = self.csvdata.fieldnames
         if self.header_row is not None:
             self.header_row = self.csvdata.header_row
-        self.data = [row for row in self.csvdata]
+        self.data = list(self.csvdata)
         self.extra_data = {}
 
     def reader_class(self):

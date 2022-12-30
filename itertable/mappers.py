@@ -53,18 +53,14 @@ class DictMapper(BaseMapper):
         return value
 
     def unmap_field(self, field):
-        for f in self.field_map:
-            if self.field_map[f] == field:
-                return f
-        return field
+        return next((f for f in self.field_map if self.field_map[f] == field), field)
 
     def unmap_value(self, field, value):
-        if not isinstance(value, str):
-            return value
-        for v in self.value_map:
-            if self.value_map[v] == value:
-                return v
-        return value
+        return (
+            next((v for v in self.value_map if self.value_map[v] == value), value)
+            if isinstance(value, str)
+            else value
+        )
 
 
 class TupleMapper(DictMapper):
@@ -102,8 +98,7 @@ class TupleMapper(DictMapper):
 
         if not hasattr(self, '_tuple_class'):
             cls = namedtuple(
-                self.__class__.__name__ + 'Tuple',
-                list(self.field_map.values())
+                f'{self.__class__.__name__}Tuple', list(self.field_map.values())
             )
             self._tuple_class = cls
 
@@ -150,7 +145,7 @@ def parse_iso8601(val):
     except Exception:
         result = None
     if result is None:
-        raise ValueError("Could not parse %s as iso8601 date!" % val)
+        raise ValueError(f"Could not parse {val} as iso8601 date!")
     return result
 
 
@@ -162,10 +157,8 @@ def make_date_mapper(fmt):
         if fmt == 'iso8601':
             return parse_iso8601(val)
         val = datetime.strptime(val, fmt)
-        if '%Y' in fmt or '%y' in fmt:
-            return val
-        else:
-            return val.time()
+        return val if '%Y' in fmt or '%y' in fmt else val.time()
+
     return mapper
 
 
@@ -190,7 +183,7 @@ class TimeSeriesMapper(TupleMapper):
                 self.map_functions.insert(0, float)
 
         value = value.strip()
-        for i, fn in enumerate(self.map_functions):
+        for fn in self.map_functions:
             try:
                 return fn(value)
             except ValueError:

@@ -15,8 +15,7 @@ class SkipPreludeReader(csv.DictReader):
         self._file = f
 
         # Preserve reader options since we'll need to make another one
-        readeropts = [f, dialect]
-        readeropts.extend(args)
+        readeropts = [f, dialect, *args]
         self._readeropts = (readeropts, kwds)
         super().__init__(
             f, fieldnames, restkey, restval, dialect, *args, **kwds
@@ -31,7 +30,7 @@ class SkipPreludeReader(csv.DictReader):
         args, kwds = self._readeropts
         data = csv.reader(*args, **kwds)
         rows = []
-        for i in range(self.max_header_row):
+        for _ in range(self.max_header_row):
             try:
                 rows.append(next(data))
             except StopIteration:
@@ -41,7 +40,7 @@ class SkipPreludeReader(csv.DictReader):
         # Reset file and advance reader so it starts in the right spot
         if hasattr(self._file, 'seek'):
             self._file.seek(0)
-        for i in range(header_row + 1):
+        for _ in range(header_row + 1):
             try:
                 next(self.reader)
             except StopIteration:

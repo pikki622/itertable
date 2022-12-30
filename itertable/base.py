@@ -35,8 +35,6 @@ class BaseIter(MutableMapping, MutableSequence):
 
     def load(self):
         "Open a resource (defined by loader mixins)"
-        # self.file = ...
-        pass
 
     def parse(self):
         """
@@ -128,10 +126,7 @@ class BaseIter(MutableMapping, MutableSequence):
 
     def find_index(self, key):
         index = self.compute_index()
-        if index is not None:
-            return index.get(key, None)
-        else:
-            return key
+        return index.get(key, None) if index is not None else key
 
     def __len__(self):
         return len(self.data)

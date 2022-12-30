@@ -56,14 +56,13 @@ class NetZipFileTestCase(IterTestCase):
 
     def register_url(self, name):
         filename = self.get_filename(name, "zip")
-        zipfile = open(filename, "rb")
-        zipdata = zipfile.read()
-        zipfile.close()
+        with open(filename, "rb") as zipfile:
+            zipdata = zipfile.read()
         httpretty.register_uri(
             httpretty.GET,
-            "http://example.com/%s.zip" % name,
+            f"http://example.com/{name}.zip",
             body=zipdata,
-            content_type="application/zip"
+            content_type="application/zip",
         )
 
     def tearDown(self):

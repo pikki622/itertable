@@ -92,7 +92,8 @@ class LoadFileTestCase(IterTestCase):
         self.duplicate('sync', self.with_key_field)
 
     def with_key_field(self, cls):
+
         class new_class(cls):
             key_field = "one"
-        new_class.__name__ = "Dict" + cls.__name__
+        new_class.__name__ = f"Dict{cls.__name__}"
         return new_class

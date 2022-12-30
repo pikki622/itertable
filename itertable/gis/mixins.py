@@ -58,7 +58,7 @@ class FionaLoaderParser(FileLoader, BaseParser):
     def parse_feature(self, f):
         # Flatten Fiona's GeoJSON-style representation into something more
         # amenable to namedtuple-ing
-        feat = {key: value for key, value in f['properties'].items()}
+        feat = dict(f['properties'].items())
         if 'id' not in feat and 'ID' not in feat:
             feat['id'] = f['id']
         feat['geometry'] = f['geometry']
@@ -147,7 +147,4 @@ class WktMapper(ShapeMapper):
 
 
 def guess_driver(filename):
-    if filename.endswith(".shp"):
-        return "ESRI Shapefile"
-    else:
-        return "GeoJSON"
+    return "ESRI Shapefile" if filename.endswith(".shp") else "GeoJSON"
